@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather & Alert Notifier</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    .row { display: flex; gap: 8px; }
+    input { flex: 1; padding: 12px; font-size: 16px; }
+    button { padding: 12px 16px; font-size: 16px; cursor: pointer; }
+    .card { margin-top: 18px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; }
+    .alert { padding: 10px; border-radius: 10px; margin: 8px 0; background: #fff3cd; border: 1px solid #ffeeba; }
+    .ok { padding: 10px; border-radius: 10px; margin: 8px 0; background: #e7f5ff; border: 1px solid #a5d8ff; }
+    .error { background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 10px; }
+    small { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Weather & Alert Notifier</h1>
+  <p>Enter a city to get current weather + quick alerts (serverless API on Vercel).</p>
+
+  <div class="row">
+    <input id="city" placeholder="e.g., London / Warsaw / Dubai" />
+    <button id="btn">Get Weather</button>
+  </div>
+
+  <div id="output" class="card" style="display:none;"></div>
+
+  <script>
+    const btn = document.getElementById("btn");
+    const cityInput = document.getElementById("city");
+    const output = document.getElementById("output");
+
+    async function run() {
+      const city = cityInput.value.trim();
+      output.style.display = "block";
+      output.innerHTML = "Loading...";
+
+      if (!city) {
+        output.innerHTML = `<div class="error">Please enter a city.</div>`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          output.innerHTML = `<div class="error">${data.error || "Request failed"}</div>`;
+          return;
+        }
+
+        const s = data.summary;
+        const alerts = (data.alerts || []);
+
+        const alertsHtml = alerts.length
+          ? alerts.map(a => `<div class="alert">${a}</div>`).join("")
+          : `<div class="ok">✅ No alerts triggered.</div>`;
+
+        output.innerHTML = `
+          <h2>${data.city}, ${data.country}</h2>
+          ${alertsHtml}
+          <p><b>Temp:</b> ${s.temp_c} °C (feels like ${s.feels_like_c} °C)</p>
+          <p><b>Humidity:</b> ${s.humidity_pct}%</p>
+          <p><b>Wind:</b> ${s.wind_kmh} km/h</p>
+          <p><b>Rain:</b> ${s.rain_mm} mm</p>
+          <small>Updated: ${s.time}</small>
+        `;
+      } catch (e) {
+        output.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+      }
+    }
+
+    btn.addEventListener("click", run);
+    cityInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") run();
+    });
+  </script>
+</body>
+</html>
