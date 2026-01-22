@@ -1,6 +1,8 @@
 export default async function handler(req, res) {
   try {
     const city = (req.query.city || "").trim();
+    const demo = String(req.query.demo || "").trim() === "1";
+
     if (!city) {
       return res.status(400).json({ error: "Missing required query param: city" });
     }
@@ -29,7 +31,7 @@ export default async function handler(req, res) {
     const wResp = await fetch(weatherUrl);
     const wData = await wResp.json();
 
-    const c = wData.current;
+    const c = wData.current || {};
     const temp = c.temperature_2m;
     const feels = c.apparent_temperature;
     const humidity = c.relative_humidity_2m;
@@ -38,10 +40,11 @@ export default async function handler(req, res) {
     const windKmh = c.wind_speed_10m;
 
     const alerts = [];
+    if (demo) alerts.push("🧪 Demo alert enabled (demo=1).");
     if ((rain ?? 0) > 0 || (precip ?? 0) > 0) alerts.push("🌧️ Rain alert: bring an umbrella.");
-    if (temp >= 30) alerts.push("🔥 Heat alert: stay hydrated.");
-    if (temp <= 0) alerts.push("🧊 Cold alert: dress warm.");
-    if (windKmh >= 40) alerts.push("💨 Wind alert: strong winds expected.");
+    if ((temp ?? 0) >= 30) alerts.push("🔥 Heat alert: stay hydrated.");
+    if ((temp ?? 0) <= 0) alerts.push("🧊 Cold alert: dress warm.");
+    if ((windKmh ?? 0) >= 40) alerts.push("💨 Wind alert: strong winds expected.");
 
     return res.status(200).json({
       city: place.name,
