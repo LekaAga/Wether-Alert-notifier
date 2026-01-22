@@ -6,9 +6,10 @@
   <title>Weather & Alert Notifier</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
-    .row { display: flex; gap: 8px; }
-    input { flex: 1; padding: 12px; font-size: 16px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input { flex: 1; min-width: 220px; padding: 12px; font-size: 16px; }
     button { padding: 12px 16px; font-size: 16px; cursor: pointer; }
+    label { display: flex; gap: 8px; align-items: center; user-select: none; }
     .card { margin-top: 18px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; }
     .alert { padding: 10px; border-radius: 10px; margin: 8px 0; background: #fff3cd; border: 1px solid #ffeeba; }
     .ok { padding: 10px; border-radius: 10px; margin: 8px 0; background: #e7f5ff; border: 1px solid #a5d8ff; }
@@ -23,6 +24,10 @@
   <div class="row">
     <input id="city" placeholder="e.g., London / Warsaw / Dubai" />
     <button id="btn">Get Weather</button>
+    <label>
+      <input type="checkbox" id="demo" />
+      Demo alerts
+    </label>
   </div>
 
   <div id="output" class="card" style="display:none;"></div>
@@ -30,10 +35,12 @@
   <script>
     const btn = document.getElementById("btn");
     const cityInput = document.getElementById("city");
+    const demoBox = document.getElementById("demo");
     const output = document.getElementById("output");
 
     async function run() {
       const city = cityInput.value.trim();
+      const demo = demoBox.checked ? "&demo=1" : "";
       output.style.display = "block";
       output.innerHTML = "Loading...";
 
@@ -43,7 +50,7 @@
       }
 
       try {
-        const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+        const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}${demo}`);
         const data = await res.json();
 
         if (!res.ok) {
