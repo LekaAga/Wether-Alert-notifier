@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather & Alert Notifier</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input { flex: 1; min-width: 220px; padding: 12px; font-size: 16px; }
+    button { padding: 12px 16px; font-size: 16px; cursor: pointer; }
+    label { display: flex; gap: 8px; align-items: center; user-select: none; }
+    .card { margin-top: 18px; padding: 14px; border: 1px solid #ddd; border-radius: 10px; }
+    .alert { padding: 10px; border-radius: 10px; margin: 8px 0; background: #fff3cd; border: 1px solid #ffeeba; }
+    .ok { padding: 10px; border-radius: 10px; margin: 8px 0; background: #e7f5ff; border: 1px solid #a5d8ff; }
+    .error { background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 10px; }
+    small { color: #555; }
+    pre { white-space: pre-wrap; word-break: break-word; margin: 8px 0; }
+  </style>
+</head>
+
+<body>
+  <h1>Weather & Alert Notifier</h1>
+
+  <div class="card ok">
+    <b>✅ Frontend loaded (CLICK-SAFE BUILD)</b><br>
+    <small id="debugInfo"></small>
+  </div>
+
+  <p>Enter a city to get current weather + quick alerts (serverless API on Vercel).</p>
+
+  <div class="row">
+    <input id="city" placeholder="e.g., London / Warsaw / Dubai" />
+    <button id="btn" type="button" onclick="run()">Get Weather</button>
+    <label>
+      <input type="checkbox" id="demo" />
+      Demo alerts
+    </label>
+  </div>
+
+  <div id="output" class="card"></div>
+
+  <script>
+    const DEPLOYED_BASE = "https://wether-alert-notifier.vercel.app";
+    const API_BASE = (location.protocol === "file:") ? DEPLOYED_BASE : "";
+
+    const cityInput = document.getElementById("city");
+    const demoBox = document.getElementById("demo");
+    const output = document.getElementById("output");
+    const debugInfo = document.getElementById("debugInfo");
+
+    debugInfo.textContent = `protocol=${location.protocol} | API_BASE=${API_BASE}`;
+
+    // Make run() global so onclick always finds it
+    window.run = async function run() {
+      const city = cityInput.value.trim();
+      const demo = demoBox.checked ? "&demo=1" : "";
+
+      if (!city) {
+        output.innerHTML =ax-width: 760px; margin: 40px auto; padding: 0 16
+        return;
+      }
+
+      const url =meta charset="utf-8" />
+  <meta name="viewport" content="width=devi
+      output.innerHTML =g="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          output.innerHTML =ert Notifier</title>
+  <style>
+    body { font-family: Arial, sans
+          return;
+        }
+
+        const s = data.summary || {};
+        const alerts = data.alerts || [];
+
+        const alertsHtml = alerts.length
+          ? alerts.map(a => `<div class="alert">${a}</div>`).join("")
+          :; max-width: 760px; margin: 40px auto; padding: 
+
+        output.innerHTML = `
+          <h2>${data.city}, ${data.country}</h2>
+          ${alertsHtml}
+          <p><b>Temp:</b> ${s.temp_c} °C (feels like ${s.feels_like_c} °C)</p>
+          <p><b>Humidity:</b> ${s.humidity_pct}%</p>
+          <p><b>Wind:</b> ${s.wind_kmh} km/h</p>
+          <p><b>Rain:</b> ${s.rain_mm} mm</p>
+          <small>Updated: ${s.time}</small>
+        `;
+      } catch (e) {
+        output.innerHTML =16px; }
+    button { padding: 12px 16px; font-size: 16px; cur
+      }
+    };
+
+    // Enter key also triggers
+    cityInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") window.run();
+    });
+  </script>
+</body>
+</html>
